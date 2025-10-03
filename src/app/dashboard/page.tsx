@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { useDashboardAccess } from "@/context/DashboardAccessContext"
+import { useSession, signOut } from "next-auth/react"
 import { useEffect } from "react"
 import Link from "next/link"
 import { 
@@ -19,11 +20,14 @@ import {
   ArrowRight,
   BarChart3,
   Flame,
-  Calendar
+  Calendar,
+  Settings,
+  LogOut
 } from "lucide-react"
 
 export default function Dashboard() {
   const { setHasVisitedDashboard } = useDashboardAccess();
+  const { data: session, status } = useSession();
 
   useEffect(() => {
     setHasVisitedDashboard(true);
@@ -64,10 +68,55 @@ export default function Dashboard() {
           <div className="flex items-center space-x-4">
             <ThemeToggle />
             <Button variant="ghost" size="sm" asChild>
-              <Link href="/settings">Settings</Link>
+              <Link href="/settings">
+                <Settings className="h-4 w-4" />
+              </Link>
             </Button>
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-bold">JS</span>
+            
+            {/* User Menu */}
+            <div className="relative group">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center cursor-pointer">
+                {session?.user?.image ? (
+                  <img 
+                    src={session.user.image} 
+                    alt="Profile" 
+                    className="w-8 h-8 rounded-full"
+                  />
+                ) : (
+                  <span className="text-white text-sm font-bold">
+                    {session?.user?.name?.charAt(0).toUpperCase() || 'U'}
+                  </span>
+                )}
+              </div>
+              
+              {/* Dropdown Menu */}
+              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="py-1">
+                  {session?.user && (
+                    <>
+                      <div className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 border-b">
+                        <div className="font-medium">{session.user.name}</div>
+                        <div className="text-gray-500">{session.user.email}</div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start text-left text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => signOut({ callbackUrl: "/" })}
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Sign Out
+                      </Button>
+                    </>
+                  )}
+                  {!session && (
+                    <Button variant="ghost" className="w-full justify-start" asChild>
+                      <Link href="/auth/signin">
+                        Sign In
+                      </Link>
+                    </Button>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -78,11 +127,15 @@ export default function Dashboard() {
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Good morning, John! 👋</h1>
-              <p className="text-gray-600 mt-1">Ready to continue your USMLE Step 2 CK preparation?</p>
+              <h1 className="text-3xl font-bold text-foreground">
+                Good morning, {session?.user?.name?.split(' ')[0] || 'Student'}! 👋
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                Ready to continue your USMLE preparation?
+              </p>
             </div>
             <div className="text-right">
-              <div className="text-sm text-gray-500">Current Streak</div>
+              <div className="text-sm text-muted-foreground">Current Streak</div>
               <div className="flex items-center text-orange-600 font-semibold">
                 <Flame className="w-5 h-5 mr-1" />
                 7 days
@@ -156,6 +209,88 @@ export default function Dashboard() {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Core Study Features */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-foreground mb-6">Your Study Hub</h2>
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {/* Study Modes */}
+            <Card className="group cursor-pointer hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100">
+              <CardHeader className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                  <Brain className="h-8 w-8 text-white" />
+                </div>
+                <CardTitle className="text-lg text-blue-900">Study Modes</CardTitle>
+                <CardDescription className="text-blue-700">Flashcards, Practice Tests, Quick Revise, Focus Mode</CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <Button className="w-full bg-blue-600 hover:bg-blue-700" asChild>
+                  <Link href="/study-modes">
+                    <Play className="mr-2 h-4 w-4" />
+                    Start Studying
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Question Bank */}
+            <Card className="group cursor-pointer hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-green-50 to-green-100">
+              <CardHeader className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                  <Target className="h-8 w-8 text-white" />
+                </div>
+                <CardTitle className="text-lg text-green-900">Question Bank</CardTitle>
+                <CardDescription className="text-green-700">AI-curated questions by subject & topic</CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <Button className="w-full bg-green-600 hover:bg-green-700" asChild>
+                  <Link href="/questions">
+                    <CheckCircle className="mr-2 h-4 w-4" />
+                    Practice Now
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* Analytics */}
+            <Card className="group cursor-pointer hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-purple-50 to-purple-100">
+              <CardHeader className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                  <BarChart3 className="h-8 w-8 text-white" />
+                </div>
+                <CardTitle className="text-lg text-purple-900">Analytics</CardTitle>
+                <CardDescription className="text-purple-700">Performance tracking, strengths & weaknesses</CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <Button className="w-full bg-purple-600 hover:bg-purple-700" asChild>
+                  <Link href="/analytics">
+                    <TrendingUp className="mr-2 h-4 w-4" />
+                    View Progress
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* AI Tutor */}
+            <Card className="group cursor-pointer hover:shadow-xl transition-all duration-300 border-0 shadow-lg bg-gradient-to-br from-orange-50 to-orange-100">
+              <CardHeader className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                  <MessageCircle className="h-8 w-8 text-white" />
+                </div>
+                <CardTitle className="text-lg text-orange-900">AI Tutor</CardTitle>
+                <CardDescription className="text-orange-700">Personalized hints, explanations & study plans</CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <Button className="w-full bg-orange-600 hover:bg-orange-700" asChild>
+                  <Link href="/tutor">
+                    <Brain className="mr-2 h-4 w-4" />
+                    Chat Now
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </div>
 
         {/* Quick Actions */}

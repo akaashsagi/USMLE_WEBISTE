@@ -56,9 +56,8 @@ export default function Flashcards() {
     }
   ]
 
-  const handleAnswer = (difficulty: 'easy' | 'medium' | 'hard') => {
-    // Use difficulty for spaced repetition algorithm in future
-    console.log(`Card answered with difficulty: ${difficulty}`)
+  const handleAnswer = () => {
+    // TODO: Implement spaced repetition algorithm based on difficulty
     
     setCompletedCards(prev => prev + 1)
     setShowAnswer(false)
@@ -201,7 +200,7 @@ export default function Flashcards() {
                       <p className="text-sm text-gray-600 mb-4">How well did you know this?</p>
                       <div className="grid gap-3">
                         <Button 
-                          onClick={() => handleAnswer('hard')}
+                          onClick={() => handleAnswer()}
                           variant="outline"
                           className="border-red-300 text-red-700 hover:bg-red-50"
                         >
@@ -209,7 +208,7 @@ export default function Flashcards() {
                           Hard - Review tomorrow
                         </Button>
                         <Button 
-                          onClick={() => handleAnswer('medium')}
+                          onClick={() => handleAnswer()}
                           variant="outline"
                           className="border-yellow-300 text-yellow-700 hover:bg-yellow-50"
                         >
@@ -217,7 +216,7 @@ export default function Flashcards() {
                           Medium - Review in 3 days
                         </Button>
                         <Button 
-                          onClick={() => handleAnswer('easy')}
+                          onClick={() => handleAnswer()}
                           variant="outline"
                           className="border-green-300 text-green-700 hover:bg-green-50"
                         >

@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { DashboardAccessProvider } from "@/context/DashboardAccessContext";
+import { AuthProvider } from "@/context/AuthProvider";
+import defaultMetadata from "@/lib/metadata";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,10 +16,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "USMLE NextGen - AI-Powered Learning Platform",
-  description: "Master the USMLE with AI-powered tutoring, adaptive learning, and comprehensive question banks.",
-};
+export const metadata: Metadata = defaultMetadata;
 
 export default function RootLayout({
   children,
@@ -29,11 +28,13 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider>
-          <DashboardAccessProvider>
-            {children}
-          </DashboardAccessProvider>
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider>
+            <DashboardAccessProvider>
+              {children}
+            </DashboardAccessProvider>
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

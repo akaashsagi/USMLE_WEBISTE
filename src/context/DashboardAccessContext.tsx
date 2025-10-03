@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, ReactNode, useMemo, useCallback } from "react";
 
 type DashboardAccessContextType = {
   hasVisitedDashboard: boolean;
@@ -9,15 +9,24 @@ type DashboardAccessContextType = {
 
 const DashboardAccessContext = createContext<DashboardAccessContextType | undefined>(undefined);
 
-export function DashboardAccessProvider({ children }: { children: ReactNode }) {
+export const DashboardAccessProvider = React.memo(function DashboardAccessProvider({ children }: { children: ReactNode }) {
   const [hasVisitedDashboard, setHasVisitedDashboard] = useState(false);
 
+  const setHasVisitedDashboardCallback = useCallback((value: boolean) => {
+    setHasVisitedDashboard(value);
+  }, []);
+
+  const contextValue = useMemo(() => ({
+    hasVisitedDashboard,
+    setHasVisitedDashboard: setHasVisitedDashboardCallback,
+  }), [hasVisitedDashboard, setHasVisitedDashboardCallback]);
+
   return (
-    <DashboardAccessContext.Provider value={{ hasVisitedDashboard, setHasVisitedDashboard }}>
+    <DashboardAccessContext.Provider value={contextValue}>
       {children}
     </DashboardAccessContext.Provider>
   );
-}
+});
 
 export function useDashboardAccess() {
   const context = useContext(DashboardAccessContext);

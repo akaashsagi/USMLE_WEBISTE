@@ -179,3 +179,48 @@ export interface AnalyticsDashboard {
     strengthAreas: string[]
   }
 }
+
+// Utility types for better type safety
+export type QuestionDifficulty = Question['difficulty']
+export type USMLEStep = Question['step']
+export type TutorMessageRole = AITutorMessage['role']
+
+// API response types
+export interface APIResponse<T = unknown> {
+  success: boolean
+  data?: T
+  error?: string
+  message?: string
+}
+
+export interface PaginatedResponse<T> extends APIResponse<T[]> {
+  pagination: {
+    page: number
+    limit: number
+    total: number
+    totalPages: number
+  }
+}
+
+// Loading and error states
+export interface LoadingState {
+  isLoading: boolean
+  error: string | null
+}
+
+// Form types
+export interface QuestionFilter {
+  step?: USMLEStep
+  organSystem?: OrganSystem
+  subject?: Subject
+  difficulty?: QuestionDifficulty
+  tags?: string[]
+}
+
+export interface StudySettings {
+  dailyQuestionGoal: number
+  studyTimeGoal: number // in minutes
+  enableNotifications: boolean
+  spacedRepetitionEnabled: boolean
+  preferredStudyTime: 'morning' | 'afternoon' | 'evening' | 'night'
+}
